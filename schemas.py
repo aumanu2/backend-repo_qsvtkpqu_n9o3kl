@@ -12,7 +12,8 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
+from datetime import date
 
 # Example schemas (replace with your own):
 
@@ -38,11 +39,27 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Habit Tracker Schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Habit(BaseModel):
+    """
+    Habits collection schema
+    Collection name: "habit"
+    """
+    name: str = Field(..., description="Short name of the habit")
+    description: Optional[str] = Field(None, description="Brief description")
+    color: str = Field("#6366f1", description="Hex color used for UI chips")
+    frequency: str = Field("daily", description="Frequency type: daily/weekly")
+    days_of_week: Optional[List[int]] = Field(
+        None,
+        description="For weekly habits: which weekdays are active (0=Mon..6=Sun)",
+    )
+
+class Habitlog(BaseModel):
+    """
+    Habit logs collection schema
+    Collection name: "habitlog"
+    """
+    habit_id: str = Field(..., description="ID of the habit (stringified ObjectId)")
+    day: date = Field(..., description="The calendar day for the check-in (YYYY-MM-DD)")
+    value: int = Field(1, description="Numeric value for the day, default 1 meaning done")
